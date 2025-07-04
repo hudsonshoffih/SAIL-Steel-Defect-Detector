@@ -1,0 +1,52 @@
+# === Python cache & compiled ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# === Virtual environment ===
+venv/
+.env/
+.envrc
+.venv/
+
+# === Ultralytics YOLO output ===
+runs/
+*.pt
+*.onnx
+*.tflite
+*.torchscript
+
+# === Dataset or training files ===
+dataset/
+datasets/
+*.yaml
+*.txt
+
+# === OS / System files ===
+.DS_Store
+Thumbs.db
+
+# === SQLite database ===
+*.db
+
+# === Jupyter or notebook checkpoints ===
+.ipynb_checkpoints/
+
+# === Report exports ===
+reports/
+
+# === Logs or temp ===
+*.log
+*.tmp
+*.bak
+
+# === IDE settings (optional) ===
+.vscode/
+.idea/
+
+# === Packaging ===
+build/
+dist/
+*.spec
+*.egg-info/
