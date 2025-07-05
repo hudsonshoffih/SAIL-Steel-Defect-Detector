@@ -1,7 +1,6 @@
-# main.py
-
 import sys
 import shutil
+import os
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout,
     QPushButton, QLineEdit, QTabWidget, QFileDialog, QMessageBox
@@ -18,6 +17,7 @@ class MainWindow(QWidget):
         self.resize(500, 300)
 
         init_db()  # Ensure DB is ready
+        self.stop_flag = False  # ✅ Flag to stop detection
 
         self.tabs = QTabWidget()
         self.tabs.addTab(self.build_detection_tab(), "Detection")
@@ -37,11 +37,12 @@ class MainWindow(QWidget):
         layout.addWidget(self.sheet_id_input)
 
         self.start_btn = QPushButton("Start Detection")
-        self.stop_btn = QPushButton("Stop Detection (Press 'q')")
+        self.stop_btn = QPushButton("Stop Detection")
         layout.addWidget(self.start_btn)
         layout.addWidget(self.stop_btn)
 
         self.start_btn.clicked.connect(self.handle_start_detection)
+        self.stop_btn.clicked.connect(self.handle_stop_detection)
 
         tab.setLayout(layout)
         return tab
@@ -78,23 +79,47 @@ class MainWindow(QWidget):
             QMessageBox.warning(self, "Missing Sheet ID", "❌ Please enter a sheet number.")
             return
 
+        self.stop_flag = False  # ✅ Reset flag
         print(f"🚀 Starting detection for sheet: {sheet_id}")
-        defects = run_live_detection(sheet_id)
+
+        # Define callbacks
+        def should_stop():
+            return self.stop_flag
+
+        def show_alert(defect_info):
+            alert = QMessageBox()
+            alert.setWindowTitle("⚠️ Defect Detected")
+            alert.setText(
+                f"🛑 {defect_info['defect_type']} detected at {defect_info['length_m']:.2f} meters!"
+            )
+            alert.exec_()
+
+        defects = run_live_detection(
+            sheet_id,
+            stop_callback=should_stop,
+            show_alert_callback=show_alert
+        )
 
         print("📄 Generating report...")
         generate_report(sheet_id, defects)
-
         print("✅ Detection and report complete.")
         QMessageBox.information(self, "Success", "✅ Detection and report saved.")
 
+    def handle_stop_detection(self):
+        print("🛑 Stop signal sent.")
+        self.stop_flag = True
+
     def handle_upload_images(self):
-        img_paths, _ = QFileDialog.getOpenFileNames(self, "Select New Defect Images", "", "Images (*.png *.jpg *.jpeg)")
+        img_paths, _ = QFileDialog.getOpenFileNames(
+            self, "Select New Defect Images", "", "Images (*.png *.jpg *.jpeg)"
+        )
         if not img_paths:
             return
 
         for img in img_paths:
             dest = "custom_data/train/images/" + os.path.basename(img)
             shutil.copy(img, dest)
+
         QMessageBox.information(self, "Uploaded", f"✅ Uploaded {len(img_paths)} images.")
 
     def handle_train_model(self):
@@ -109,7 +134,7 @@ class MainWindow(QWidget):
         import subprocess
         import platform
         path = os.path.abspath("reports")
-        if platform.system() == "Darwin":  # macOS
+        if platform.system() == "Darwin":
             subprocess.call(["open", path])
         elif platform.system() == "Windows":
             subprocess.call(["explorer", path])
@@ -117,7 +142,6 @@ class MainWindow(QWidget):
             subprocess.call(["xdg-open", path])
 
 if __name__ == "__main__":
-    import os
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()

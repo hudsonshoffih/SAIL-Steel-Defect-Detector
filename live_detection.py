@@ -11,7 +11,7 @@ import os
 
 def run_live_detection(sheet_id, stop_callback=None, show_alert_callback=None):
     model = YOLO(MODEL_PATH)
-    tracker = MeterTracker(sheet_number=sheet_id, speed_m_per_sec=DEFAULT_SPEED)
+    tracker = MeterTracker(sheet_number=sheet_id, speed_m_per_sec=0.0)
     tracker.start()
 
     cap = cv2.VideoCapture(0)
@@ -71,7 +71,9 @@ def run_live_detection(sheet_id, stop_callback=None, show_alert_callback=None):
         if stop_callback and stop_callback():
             break
 
-        cv2.waitKey(1)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            print("🛑 Stopping due to 'q' key press.")
+            break
 
     tracker.stop()
     cap.release()
