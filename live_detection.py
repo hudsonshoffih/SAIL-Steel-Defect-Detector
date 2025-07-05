@@ -11,7 +11,7 @@ import os
 
 def run_live_detection(sheet_id, stop_callback=None, show_alert_callback=None):
     model = YOLO(MODEL_PATH)
-    tracker = MeterTracker(sheet_number=sheet_id, speed_m_per_sec=50.0)
+    tracker = MeterTracker(sheet_number=sheet_id, speed_m_per_sec=50.0) 
     tracker.start()
 
     cap = cv2.VideoCapture(0)
@@ -27,7 +27,7 @@ def run_live_detection(sheet_id, stop_callback=None, show_alert_callback=None):
             print("Camera read failed.")
             break
 
-        results = model(frame, imgsz=640, conf=0.4)
+        results = model(frame, imgsz=640, conf=0.4)# have to change when i got the actual data
 
         for r in results:
             for box in r.boxes:
