@@ -11,7 +11,7 @@ import os
 
 def run_live_detection(sheet_id, stop_callback=None, show_alert_callback=None):
     model = YOLO(MODEL_PATH)
-    tracker = MeterTracker(sheet_number=sheet_id, speed_m_per_sec=50.0) 
+    tracker = MeterTracker(sheet_number=sheet_id, speed_m_per_sec=50.0) # mostly gotta fetch the conveyor speed from gui
     tracker.start()
 
     cap = cv2.VideoCapture(0)
