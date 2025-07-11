@@ -9,7 +9,7 @@ import subprocess
 from report_generator import generate_report
 from live_detection import run_live_detection
 from train_gui_module import train_from_gui
-from data_collection_ui import launch_data_collection_ui  # ✅ new import
+from data_collection_ui import launch_data_collection_ui  
 
 class SteelInspectorApp:
     def __init__(self, root):
@@ -30,7 +30,7 @@ class SteelInspectorApp:
         tk.Button(self.root, text="End & Generate Report", command=self.end_inspection, bg="red", fg="white").pack(pady=5)
         tk.Button(self.root, text="📤 Train New Defect", command=self.train_gui, bg="blue", fg="white").pack(pady=10)
 
-        # ✅ New button for data collection interface
+        # New button for data collection interface
         tk.Button(self.root, text="📸 Data Collection & Labeling", command=self.open_data_collection_ui, bg="orange", fg="black").pack(pady=10)
 
         tk.Label(self.root, textvariable=self.status, font=("Arial", 10)).pack(pady=20)
@@ -62,7 +62,7 @@ class SteelInspectorApp:
         train_from_gui()
 
     def open_data_collection_ui(self):
-        # ✅ launch the PyQt5-based data collection interface
+        # launch the PyQt5-based data collection interface
         launch_data_collection_ui()
 
 if __name__ == "__main__":
