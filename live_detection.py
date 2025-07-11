@@ -1,8 +1,3 @@
-"""
-Real‑time steel‑sheet defect detection using YOLOv8.
-Returns a list of dictionaries with defect info for report‑generation.
-"""
-
 import os
 import cv2
 from ultralytics import YOLO
