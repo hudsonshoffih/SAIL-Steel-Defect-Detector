@@ -24,10 +24,10 @@ class MainWindow(QWidget):
         self.defects = []
 
         self.tabs = QTabWidget()
-        self.tabs.addTab(self.build_detection_tab(), "🔍 Detection")
-        self.tabs.addTab(self.build_training_tab(), "🧠 Train")
-        self.tabs.addTab(self.build_report_tab(), "📁 Reports")
-        self.tabs.addTab(DataCollectionWidget(), "📊 Data Collection")
+        self.tabs.addTab(self.build_detection_tab(), "Detection")
+        self.tabs.addTab(self.build_training_tab(), "Train")
+        self.tabs.addTab(self.build_report_tab(), "Reports")
+        self.tabs.addTab(DataCollectionWidget(), "Data Collection")
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.tabs)
@@ -40,7 +40,7 @@ class MainWindow(QWidget):
         self.sheet_id_input = QLineEdit(placeholderText="Enter Sheet Number…")
         lay.addWidget(self.sheet_id_input)
 
-        self.start_btn = QPushButton("▶️ Start Detection")
+        self.start_btn = QPushButton("Start Detection")
         self.stop_btn  = QPushButton("🛑 Stop Detection")
         self.status_lbl = QLabel("Status: Idle")
 
@@ -101,7 +101,7 @@ class MainWindow(QWidget):
         lay = QVBoxLayout(tab)
 
         self.upload_btn = QPushButton("📤 Upload Images for Training")
-        self.train_btn  = QPushButton("⚙️ Train Model")
+        self.train_btn  = QPushButton("Train Model")
 
         lay.addWidget(self.upload_btn)
         lay.addWidget(self.train_btn)

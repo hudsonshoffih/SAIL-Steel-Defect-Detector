@@ -26,8 +26,8 @@ class SteelInspectorApp:
         tk.Label(self.root, text="Enter Sheet Number:", font=("Arial", 12)).pack(pady=10)
         tk.Entry(self.root, textvariable=self.sheet_id, font=("Arial", 12)).pack()
 
-        tk.Button(self.root, text="▶️ Start Inspection", command=self.start_inspection, bg="green", fg="white").pack(pady=10)
-        tk.Button(self.root, text="⏹ End & Generate Report", command=self.end_inspection, bg="red", fg="white").pack(pady=5)
+        tk.Button(self.root, text="Start Inspection", command=self.start_inspection, bg="green", fg="white").pack(pady=10)
+        tk.Button(self.root, text="End & Generate Report", command=self.end_inspection, bg="red", fg="white").pack(pady=5)
         tk.Button(self.root, text="📤 Train New Defect", command=self.train_gui, bg="blue", fg="white").pack(pady=10)
 
         # ✅ New button for data collection interface

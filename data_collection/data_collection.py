@@ -45,7 +45,7 @@ class DataCollectionWidget(QWidget):
 
         self.start_btn   = QPushButton("Start Camera")
         self.stop_btn    = QPushButton("🛑 Stop Camera")
-        self.capture_btn = QPushButton("📸 Capture (SPACE)")
+        self.capture_btn = QPushButton("Capture (SPACE)")
         self.annotate_btn= QPushButton("🖍️ Annotate Selected Image(s)")
         self.new_defect_btn = QPushButton("➕ New Defect Folder")
         self.upload_btn  = QPushButton("Upload Images for Annotation")
