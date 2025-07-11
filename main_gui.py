@@ -7,14 +7,15 @@ import threading
 import subprocess
 
 from report_generator import generate_report
-from live_detection import run_live_detection  # You’ll implement this
-from train_gui_module import train_from_gui    # You’ll implement this
+from live_detection import run_live_detection
+from train_gui_module import train_from_gui
+from data_collection_ui import launch_data_collection_ui  # ✅ new import
 
 class SteelInspectorApp:
     def __init__(self, root):
         self.root = root
         self.root.title("🛠️ Steel Defect Inspection Dashboard")
-        self.root.geometry("500x400")
+        self.root.geometry("500x500")
         self.sheet_id = tk.StringVar()
         self.status = tk.StringVar(value="Status: Waiting...")
         self.defect_data = []
@@ -28,6 +29,9 @@ class SteelInspectorApp:
         tk.Button(self.root, text="▶️ Start Inspection", command=self.start_inspection, bg="green", fg="white").pack(pady=10)
         tk.Button(self.root, text="⏹ End & Generate Report", command=self.end_inspection, bg="red", fg="white").pack(pady=5)
         tk.Button(self.root, text="📤 Train New Defect", command=self.train_gui, bg="blue", fg="white").pack(pady=10)
+
+        # ✅ New button for data collection interface
+        tk.Button(self.root, text="📸 Data Collection & Labeling", command=self.open_data_collection_ui, bg="orange", fg="black").pack(pady=10)
 
         tk.Label(self.root, textvariable=self.status, font=("Arial", 10)).pack(pady=20)
 
@@ -56,6 +60,10 @@ class SteelInspectorApp:
 
     def train_gui(self):
         train_from_gui()
+
+    def open_data_collection_ui(self):
+        # ✅ launch the PyQt5-based data collection interface
+        launch_data_collection_ui()
 
 if __name__ == "__main__":
     root = tk.Tk()

@@ -11,3 +11,5 @@ REPORT_DIR = "reports"
 
 # Meter Tracking
 DEFAULT_SPEED = 50.0  # meters/sec
+
+CONF_THRESHOLD = 0.4 
