@@ -28,7 +28,9 @@ class DataCollectionWidget(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("📊 Data Collection")
+        self.setWindowTitle("Data Collection")
+        self.setFocusPolicy(Qt.StrongFocus)
+
 
         # State
         self.cap = None
@@ -82,6 +84,11 @@ class DataCollectionWidget(QWidget):
         self.space_timer = QTimer(self)
         self.space_timer.timeout.connect(self.check_spacebar)
         self.space_timer.start(50)
+        
+    # space to capture    
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Space:
+            self.capture_frame()
 
     # ---------- Camera Handling ----------------------------------------
     def start_camera(self):

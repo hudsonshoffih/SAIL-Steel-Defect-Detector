@@ -15,7 +15,7 @@ from data_collection.data_collection import DataCollectionWidget  # Data‑colle
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Steel Sheet Defect Inspector 🛠️")
+        self.setWindowTitle("Steel Sheet Defect Inspection Dashboard")
         self.resize(650, 450)
 
         init_db()
