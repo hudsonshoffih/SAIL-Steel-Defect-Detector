@@ -28,3 +28,4 @@ def insert_defect(sheet_number, defect_type, length_meter, image_path):
     ''', (sheet_number, defect_type, length_meter, timestamp, image_path))
     conn.commit()
     conn.close()
+#use when neeed
