@@ -13,11 +13,11 @@ from PyQt5.QtWidgets import (
     QListWidget, QInputDialog, QFileDialog, QMessageBox
 )
 
-# ---------- CONSTANT PATHS (edit in config.py if you prefer) ----------
+# Constant Paths for config.py
 COLLECTED_DIR = "data_collection/collected"
 LABELS_DIR    = "data_collection/labels"
 ANNOTATOR     = "data_collection/annotations/data_labeler.py"
-# ---------------------------------------------------------------------
+
 
 
 class DataCollectionWidget(QWidget):
@@ -37,7 +37,7 @@ class DataCollectionWidget(QWidget):
         self.running = False
         self.current_defect = None
 
-        # --- UI Widgets -------------------------------------------------
+        # Ui widgets
         self.video_lbl = QLabel("Camera preview")
         self.video_lbl.setAlignment(Qt.AlignCenter)
         self.video_lbl.setFixedHeight(300)
@@ -122,13 +122,11 @@ class DataCollectionWidget(QWidget):
         self.video_lbl.setPixmap(QPixmap.fromImage(qimg).scaled(
             self.video_lbl.width(), self.video_lbl.height(), Qt.KeepAspectRatio))
 
-    # ---------- Keyboard SPACE Capture ---------------------------------
+    # Space to Capture
     def check_spacebar(self):
         if not self.running:
             return
-        # Check global keyboard state (PyQt limited) -> rely on button instead
-        # Optionally implement with pynput if needed
-        # self.capture_frame()  # If you want timed capture
+      
 
     def capture_frame(self):
         if not (self.running and self.cap):
@@ -148,7 +146,7 @@ class DataCollectionWidget(QWidget):
         QMessageBox.information(self, "Saved", f"✅ Image saved to {save_path}")
         self.refresh_defect_folders(select=defect)
 
-    # ---------- Defect Folder Helpers ----------------------------------
+    # Detect Foldeers
     def refresh_defect_folders(self, select: str | None = None):
         os.makedirs(COLLECTED_DIR, exist_ok=True)
         self.defect_list.clear()
@@ -172,7 +170,7 @@ class DataCollectionWidget(QWidget):
         item = self.defect_list.currentItem()
         return item.text() if item else None
 
-      # ---------- Annotation Launch --------------------------------------
+      # Annotation
     def launch_annotator(self):
         defect = self.get_selected_defect()
         if not defect:
@@ -191,7 +189,7 @@ class DataCollectionWidget(QWidget):
             except Exception as exc:
                 QMessageBox.critical(self, "Error", f"Cannot launch annotator:\n{exc}")
 
-    # ---------- Upload External Images ---------------------------------
+    # Upload Images
     def upload_images(self):
         files, _ = QFileDialog.getOpenFileNames(self, "Select Images", "",
                                                 "Images (*.jpg *.jpeg *.png)")
