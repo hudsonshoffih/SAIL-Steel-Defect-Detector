@@ -2,13 +2,12 @@ import os
 import sys
 import cv2
 
-# -----------------------------------------------------------------------------
+
 # Drawing globals
 drawing     = False
 start_point = ()
 end_point   = ()
-boxes       = []  # List of final boxes (x1, y1, x2, y2)
-# -----------------------------------------------------------------------------
+boxes       = [] 
 
 def draw_rectangle(event, x, y, flags, param):
     global drawing, start_point, end_point, boxes
@@ -23,7 +22,6 @@ def draw_rectangle(event, x, y, flags, param):
         end_point = (x, y)
         boxes.append((start_point, end_point))
 
-# -----------------------------------------------------------------------------
 def annotate_image(image_path: str, class_id: int = 0):
     global boxes, drawing, start_point, end_point
     boxes = []
@@ -67,8 +65,6 @@ def annotate_image(image_path: str, class_id: int = 0):
 
     cv2.destroyAllWindows()
 
-
-# -----------------------------------------------------------------------------
 def save_annotations(image_path, boxes, shape, class_id):
     h, w = shape[:2]
 
@@ -91,7 +87,6 @@ def save_annotations(image_path, boxes, shape, class_id):
 
     print(f"✅ Saved {len(boxes)} annotations → {label_path}")
 
-# -----------------------------------------------------------------------------
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python data_labeler.py <image_path> [class_id]")

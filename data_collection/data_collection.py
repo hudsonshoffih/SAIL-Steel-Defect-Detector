@@ -52,7 +52,7 @@ class DataCollectionWidget(QWidget):
         self.new_defect_btn = QPushButton("➕ New Defect Folder")
         self.upload_btn  = QPushButton("Upload Images for Annotation")
 
-        # --- Layout -----------------------------------------------------
+        # Layouts
         btn_row = QHBoxLayout()
         btn_row.addWidget(self.start_btn)
         btn_row.addWidget(self.stop_btn)
@@ -71,7 +71,7 @@ class DataCollectionWidget(QWidget):
         action_row.addWidget(self.upload_btn)
         vbox.addLayout(action_row)
 
-        # --- Signals ----------------------------------------------------
+        # Signals
         self.start_btn.clicked.connect(self.start_camera)
         self.stop_btn.clicked.connect(self.stop_camera)
         self.capture_btn.clicked.connect(self.capture_frame)
@@ -89,8 +89,7 @@ class DataCollectionWidget(QWidget):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Space:
             self.capture_frame()
-
-    # ---------- Camera Handling ----------------------------------------
+    # Camera Handling
     def start_camera(self):
         if self.running:
             return
