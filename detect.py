@@ -5,6 +5,7 @@ import time
 import os
 from datetime import datetime
 from ultralytics import YOLO
+from config import CONF_THRESHOLD
 
 def run_detection(sheet_id, model_path="model/best.pt", save_path="reports", speed_mps=50):
     model = YOLO(model_path)
@@ -27,7 +28,7 @@ def run_detection(sheet_id, model_path="model/best.pt", save_path="reports", spe
             break
 
         # Predict using YOLOv8
-        results = model(frame, imgsz=640, conf=0.4)
+        results = model(frame, imgsz=640, conf=CONF_THRESHOLD)
         boxes = results[0].boxes
         detected = False
 

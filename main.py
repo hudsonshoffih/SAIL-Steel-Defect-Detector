@@ -1,7 +1,8 @@
 import sys
 import shutil
 import os
-import threading
+from PyQt5.QtCore import QThread, pyqtSignal, Qt
+from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QVBoxLayout, QPushButton,
     QLineEdit, QTabWidget, QFileDialog, QMessageBox
@@ -12,14 +13,41 @@ from report_generator import generate_report
 from utils.sql_connector import init_db
 from data_collection.data_collection import DataCollectionWidget  # Data‑collection tab
 
+class DetectionThread(QThread):
+    defect_signal = pyqtSignal(dict)
+    finished_signal = pyqtSignal(list, str)
+    frame_signal = pyqtSignal(QImage)
+
+    def __init__(self, sheet_id):
+        super().__init__()
+        self.sheet_id = sheet_id
+        self.stop_flag = False
+
+    def run(self):
+        defects = run_live_detection(
+            self.sheet_id,
+            stop_callback=lambda: self.stop_flag,
+            show_alert_callback=self.emit_defect,
+            frame_callback=self.emit_frame
+        )
+        self.finished_signal.emit(defects, self.sheet_id)
+
+    def emit_defect(self, info):
+        self.defect_signal.emit(info)
+
+    def emit_frame(self, qimg):
+        self.frame_signal.emit(qimg)
+
+    def stop(self):
+        self.stop_flag = True
+
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Steel Sheet Defect Inspection Dashboard")
-        self.resize(650, 450)
+        self.resize(700, 550)
 
         init_db()
-        self.stop_flag = False
         self.detect_thread = None
         self.defects = []
 
@@ -40,6 +68,12 @@ class MainWindow(QWidget):
         self.sheet_id_input = QLineEdit(placeholderText="Enter Sheet Number…")
         lay.addWidget(self.sheet_id_input)
 
+        self.video_preview = QLabel("📷 Live Detection Stream (Click 'Start Detection')")
+        self.video_preview.setAlignment(Qt.AlignCenter)
+        self.video_preview.setFixedHeight(300)
+        self.video_preview.setStyleSheet("background-color: #1e1e1e; color: #aaa; font-weight: bold; border-radius: 6px;")
+        lay.addWidget(self.video_preview)
+
         self.start_btn = QPushButton("Start Detection")
         self.stop_btn  = QPushButton("🛑 Stop Detection")
         self.status_lbl = QLabel("Status: Idle")
@@ -52,45 +86,50 @@ class MainWindow(QWidget):
         self.stop_btn.clicked.connect(self.stop_detection)
         return tab
 
-    def detection_worker(self, sheet_id):
-        """Background thread that runs detection."""
-        self.defects = run_live_detection(
-            sheet_id,
-            stop_callback=lambda: self.stop_flag,
-            show_alert_callback=self.show_defect_alert
+    def start_detection(self):
+        sheet_id = self.sheet_id_input.text().strip()
+        if not sheet_id:
+            QMessageBox.warning(self, "Missing Sheet ID", "Please enter a sheet number.")
+            return
+        if self.detect_thread and self.detect_thread.isRunning():
+            QMessageBox.information(self, "Running", "Detection already in progress.")
+            return
+
+        self.status_lbl.setText("🔍 Detecting… Press Stop to finish.")
+        self.detect_thread = DetectionThread(sheet_id)
+        self.detect_thread.defect_signal.connect(self.show_defect_alert)
+        self.detect_thread.finished_signal.connect(self.on_detection_finished)
+        self.detect_thread.frame_signal.connect(self.update_detection_frame)
+        self.detect_thread.start()
+
+    def update_detection_frame(self, qimg):
+        self.video_preview.setPixmap(
+            QPixmap.fromImage(qimg).scaled(
+                self.video_preview.width(),
+                self.video_preview.height(),
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            )
         )
-        # After loop ends generate report
+
+    def stop_detection(self):
+        if not self.detect_thread or not self.detect_thread.isRunning():
+            return
+        self.detect_thread.stop()
+        self.status_lbl.setText("Stopping… please wait.")
+
+    def on_detection_finished(self, defects, sheet_id):
+        self.defects = defects
         if self.defects:
             path = generate_report(sheet_id, self.defects)
             self.status_lbl.setText(f"✅ Report saved → {path}")
             QMessageBox.information(self, "Done", f"Report generated for {sheet_id}")
         else:
             self.status_lbl.setText("No defects recorded.")
-        self.detect_thread = None   # thread finished
-
-    def start_detection(self):
-        sheet_id = self.sheet_id_input.text().strip()
-        if not sheet_id:
-            QMessageBox.warning(self, "Missing Sheet ID", "Please enter a sheet number.")
-            return
-        if self.detect_thread:  # Already running
-            QMessageBox.information(self, "Running", "Detection already in progress.")
-            return
-
-        self.stop_flag = False
-        self.status_lbl.setText("🔍 Detecting… Press Stop to finish.")
-        # Launch background thread
-        self.detect_thread = threading.Thread(target=self.detection_worker, args=(sheet_id,), daemon=True)
-        self.detect_thread.start()
-
-    def stop_detection(self):
-        if not self.detect_thread:
-            return
-        self.stop_flag = True
-        self.status_lbl.setText("Stopping… please wait.")
+        self.detect_thread = None
 
     def show_defect_alert(self, info):
-        alert = QMessageBox()
+        alert = QMessageBox(self)
         alert.setWindowTitle("⚠️ Defect Detected")
         alert.setText(f"{info['defect_type']} at {info['length_m']:.2f} m")
         alert.exec_()

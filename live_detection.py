@@ -7,12 +7,15 @@ from utils.helper import format_timestamp, save_image, generate_defect_filename
 from utils.sql_connector import insert_defect
 from config import MODEL_PATH, DEFAULT_SPEED, REPORT_DIR, CONF_THRESHOLD  # add CONF_THRESHOLD in config.py
 
+from PyQt5.QtGui import QImage
+
 # --------------------------------------------------------------------
 def run_live_detection(
         sheet_id: str,
         speed_mps: float | None = None,
         stop_callback=None,
         show_alert_callback=None,
+        frame_callback=None,
         conf: float | None = None,
         ):
     """
@@ -22,6 +25,7 @@ def run_live_detection(
         speed_mps (optional)    : conveyor speed (m/s); if None → DEFAULT_SPEED
         stop_callback (func)    : returns True when GUI/user wants to stop
         show_alert_callback     : called with defect_info dict when a defect detected
+        frame_callback          : called with QImage for embedding video inside GUI
         conf (float, optional)  : confidence threshold (default from config)
     Returns
         list[dict] defects      : collected defect dictionaries
@@ -82,24 +86,38 @@ def run_live_detection(
                 if show_alert_callback:
                     show_alert_callback(defect_info)
 
-        # Draw overlay
+        # Draw overlay & attempt window display
         annotated = results[0].plot()
         cv2.putText(
             annotated, f"Length: {tracker.get_length():.2f} m",
             (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2
         )
-        cv2.imshow("Steel Inspector (press 'q' to exit)", annotated)
+
+        if frame_callback:
+            rgb = cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB)
+            h, w, _ = rgb.shape
+            qimg = QImage(rgb.data, w, h, 3 * w, QImage.Format_RGB888)
+            frame_callback(qimg)
+
+        try:
+            cv2.imshow("Steel Inspector (press 'q' to exit)", annotated)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                print("🛑 Stopping via 'q' key.")
+                break
+        except Exception:
+            # OpenCV GUI operations can fail when run in secondary threads on macOS
+            pass
 
         # Check stop flags after display
         if stop_callback and stop_callback():
-            break
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            print("🛑 Stopping via 'q' key.")
             break
 
     # Cleanup
     tracker.stop()
     cap.release()
-    cv2.destroyAllWindows()
+    try:
+        cv2.destroyAllWindows()
+    except Exception:
+        pass
     print("✅ Live detection ended.")
     return defects

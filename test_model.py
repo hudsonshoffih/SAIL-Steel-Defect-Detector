@@ -6,9 +6,9 @@ import cv2
 from ultralytics import YOLO
 from utils.helper import format_timestamp, generate_defect_filename, save_image
 from utils.sql_connector import insert_defect
+from config import MODEL_PATH, CONF_THRESHOLD
 
 # CONFIG
-MODEL_PATH = "runs/detect/train5/weights/best.pt"
 SHEET_ID = "test_sheet"
 
 # ✅ Check for image path argument
@@ -28,7 +28,7 @@ if frame is None:
     sys.exit(1)
 
 # Run detection
-results = model(IMAGE_PATH, conf=0.1, imgsz=640)
+results = model(IMAGE_PATH, conf=CONF_THRESHOLD, imgsz=640)
 
 found_defects = False
 for r in results:
@@ -50,10 +50,13 @@ for r in results:
         found_defects = True
 
 # Display result
-annotated_frame = results[0].plot()
-cv2.imshow("Test Image Detection", annotated_frame)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+try:
+    annotated_frame = results[0].plot()
+    cv2.imshow("Test Image Detection", annotated_frame)
+    cv2.waitKey(1000)
+    cv2.destroyAllWindows()
+except Exception:
+    pass
 
 if not found_defects:
     print("⚠️ No defects detected.")
